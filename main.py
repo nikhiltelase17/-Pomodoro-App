@@ -1,5 +1,11 @@
 from tkinter import *
 import math
+import win32com.client
+import pygame
+
+speaker = win32com.client.Dispatch("SAPI.SpVoice")
+pygame.mixer.init()
+click_sound = pygame.mixer.Sound("click_effect-86995.mp3")
 
 # Constants for colors, font, and time intervals
 PINK = "#e2979c"
@@ -18,6 +24,9 @@ def reset_timer():
     '''Function to reset the timer and UI elements'''
     global reps
     global timer
+
+    pygame.mixer.Sound.play(click_sound)
+
     window.after_cancel(timer)  # Cancel running timer
     title_label.config(text="Timer")
     check_label.config(text="")
@@ -30,6 +39,7 @@ def start_timer():
     '''Function to start the timer based on work/break cycles'''
     global reps
     reps += 1  # Increment rep count
+    pygame.mixer.Sound.play(click_sound)
 
     work_seconds = WORK_MIN * 60  # Convert work minutes to seconds
     short_break_seconds = SHORT_BREAK_MIN * 60  # Convert short break minutes to seconds
@@ -37,14 +47,17 @@ def start_timer():
 
     if reps % 8 == 0:
         # Long break after every 8 reps
+        speaker.Speak("time to long break")
         title_label.config(text="Break", fg=RED)
         count_down(long_break_seconds)
     elif reps % 2 == 0:
+        speaker.Speak("time to short break")
         # Short break after every 2 reps
         title_label.config(text="Break", fg=PINK)
         count_down(short_break_seconds)
     else:
         # Work session
+        speaker.Speak("time to work")
         title_label.config(text="Work", fg=GREEN)
         count_down(work_seconds)
 
